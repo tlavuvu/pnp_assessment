@@ -1,0 +1,11 @@
+# Dev profile: verbose logging, formatted SQL, local Postgres defaults.
+# Not used in CI or tests.
+spring:
+  jpa:
+    properties:
+      hibernate.format_sql: true
+logging:
+  level:
+    com.pnp.ecommerce: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
