@@ -1,3 +1,4 @@
+# ---- Pre-existing entries (kept intact) ----
 node_modules
 .env
 .env.local
@@ -6,3 +7,38 @@ node_modules
 .env.production.local
 .cursorrules
 dist
+
+# ---- Java / Maven ----
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# ---- IDEs ----
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
+
+# ---- Build / test output ----
+**/build/
+**/out/
+**/bin/
+
+# ---- Local secrets ----
+application-local.yml
+application-local.yaml
+application-local.properties

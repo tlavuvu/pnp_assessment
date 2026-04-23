@@ -1,0 +1,60 @@
+# ============================================================================
+# Base configuration. Profile-specific overrides live in application-<profile>.yml.
+# Active profile selected via SPRING_PROFILES_ACTIVE (defaults to "dev").
+# ============================================================================
+
+spring:
+  application:
+    name: pnp-ecommerce
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/pnp_ecommerce}
+    username: ${DB_USER:pnp}
+    password: ${DB_PASSWORD:pnp}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 10000
+      pool-name: PnpHikariPool
+
+  # Hibernate: schema is owned by Liquibase, so validate only.
+  # ddl-auto=validate fails fast at boot if the entity model drifts from
+  # the Liquibase-owned schema — exactly the behaviour we want.
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.format_sql: false
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    # Never leak internal details through Spring's default error mapping;
+    # GlobalExceptionHandler owns all error responses in Phase 7.
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: INFO
+    com.pnp.ecommerce: INFO
+    org.hibernate.SQL: WARN

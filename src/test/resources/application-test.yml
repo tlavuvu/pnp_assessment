@@ -1,0 +1,28 @@
+# Test profile: integration tests boot against Testcontainers Postgres via
+# the Testcontainers JDBC driver. No test has to wire containers manually —
+# the `jdbc:tc:postgresql:...` URL triggers a container per JVM.
+#
+# Chosen over @Testcontainers + @Container boilerplate because it keeps test
+# classes clean and speeds up tests that share the same container.
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///pnp_ecommerce_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: test
+    password: test
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 1
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    contexts: test
+
+logging:
+  level:
+    com.pnp.ecommerce: DEBUG
+    org.testcontainers: INFO
+    com.github.dockerjava: WARN

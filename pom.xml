@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+      Inherit from spring-boot-starter-parent:
+      - Manages versions of every Spring Boot starter transitively.
+      - Wires spring-boot-maven-plugin for fat-jar + run goals out of the box.
+      - Alternative considered: bom-import (spring-boot-dependencies). Rejected
+        because we have no corporate parent to preserve, so the starter-parent
+        is strictly simpler with zero cost.
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.13</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.pnp</groupId>
+    <artifactId>ecommerce</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <name>PnP Ecommerce Assessment</name>
+    <description>Mid-Level Java Developer: Ecommerce Systems take-home</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Third-party versions not managed by Spring Boot parent -->
+        <bucket4j.version>8.10.1</bucket4j.version>
+        <testcontainers.version>1.20.4</testcontainers.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!--
+              Testcontainers BOM so every testcontainers module (postgresql,
+              junit-jupiter) stays on the same version. Chosen over pinning
+              each module individually to avoid version drift.
+            -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <!-- ============================================================ -->
+        <!-- Web / REST / Validation                                      -->
+        <!-- ============================================================ -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- Persistence: JPA (CRUD) + Liquibase (schema) + Postgres      -->
+        <!-- JPA handles the plain CRUD paths; Phase 8 adds JdbcTemplate  -->
+        <!-- (already transitively available via spring-boot-starter-jdbc -->
+        <!-- pulled in by data-jpa) for the reporting SQL.                -->
+        <!-- ============================================================ -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- Security (optional enhancement per brief)                    -->
+        <!-- ============================================================ -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- Rate limiting (Bucket4j, in-memory)                          -->
+        <!-- Version pinned explicitly: not managed by Spring Boot parent -->
+        <!-- ============================================================ -->
+
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>${bucket4j.version}</version>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- Observability (health endpoint only; cheap)                  -->
+        <!-- ============================================================ -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- ============================================================ -->
+        <!-- Test dependencies                                            -->
+        <!-- ============================================================ -->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+          Testcontainers + Postgres module chosen over H2 because H2 cannot
+          faithfully represent SELECT ... FOR UPDATE semantics, NUMERIC
+          strictness, or Postgres-compatible CHECK constraints that our
+          stock-correctness story depends on.
+        -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

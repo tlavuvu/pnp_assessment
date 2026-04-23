@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Master changelog. Phase 3 will append <include> entries for each
+        SQL changeset under changes/. Keeping this file as the single
+        entry point so application.yml never needs to change when we add
+        migrations.
+
+        Ordering rule: include files in filename order (001-, 002-, ...).
+    -->
+
+</databaseChangeLog>
