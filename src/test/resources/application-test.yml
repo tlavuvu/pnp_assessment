@@ -26,3 +26,15 @@ logging:
     com.pnp.ecommerce: DEBUG
     org.testcontainers: INFO
     com.github.dockerjava: WARN
+
+# Test-profile security users. Matching dev credentials keeps MockMvc
+# helpers trivial (httpBasic("admin","admin123")) without leaking real
+# secrets — the users exist only in the test JVM.
+security:
+  users:
+    - username: admin
+      password: admin123
+      roles: [ADMIN]
+    - username: user
+      password: user123
+      roles: [USER]

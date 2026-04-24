@@ -57,3 +57,16 @@ logging:
     com.pnp.ecommerce: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+# Seeded in-memory security users. Plaintext here only for dev ergonomics —
+# SecurityConfig BCrypt-encodes at startup; the hash never reaches disk.
+# A production profile would override these (hashes + env vars) or swap in
+# a DB-backed UserDetailsService entirely.
+security:
+  users:
+    - username: admin
+      password: admin123
+      roles: [ADMIN]
+    - username: user
+      password: user123
+      roles: [USER]
