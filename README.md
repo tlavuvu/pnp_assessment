@@ -5,6 +5,7 @@ take-home. Spring Boot 3 / Java 17 / PostgreSQL / Liquibase.
 
 > This README is the **quick-start**. Design lives in [`docs/`](./docs):
 > [SOLUTION](./docs/SOLUTION.md) (start here),
+> [REVIEWER-CHECKLIST](./docs/REVIEWER-CHECKLIST.md) (rule → code map),
 > [ARCHITECTURE](./docs/ARCHITECTURE.md),
 > [API-DESIGN](./docs/API-DESIGN.md),
 > [DB-DESIGN](./docs/DB-DESIGN.md),
@@ -249,4 +250,4 @@ described in [`docs/API-DESIGN.md`](./docs/API-DESIGN.md) §2.
 - [x] Phase 9 — Security (optional enhancement)
 - [x] Phase 10 — Tests
 - [x] Phase 11 — Documentation
-- [ ] Phase 12 — Final review
+- [x] Phase 12 — Final review

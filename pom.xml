@@ -183,13 +183,18 @@
                 window (24). Safe trade-off because the flag is scoped to
                 the test JVM only.
               - -XX:+EnableDynamicAgentLoading silences the future-removal
-                warning for Mockito's self-attaching inline mock maker.
+                warning for Mockito's self-attaching inline mock maker
+                (JDK 21+).
+              - -XX:+IgnoreUnrecognizedVMOptions is prepended so the
+                above flag becomes a silent no-op on JDK 17 / 20, which
+                don't know it. This keeps the build green for a
+                reviewer on the brief's stated JDK 17 runtime.
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Dnet.bytebuddy.experimental=true -XX:+EnableDynamicAgentLoading</argLine>
+                    <argLine>-XX:+IgnoreUnrecognizedVMOptions -Dnet.bytebuddy.experimental=true -XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
             </plugin>
         </plugins>

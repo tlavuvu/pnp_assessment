@@ -252,10 +252,14 @@ The concurrency test is the highest-signal spec in the suite and is
 called out separately in
 [`TEST-STRATEGY.md`](./TEST-STRATEGY.md).
 
-One concession: `maven-surefire-plugin` runs with
-`-Dnet.bytebuddy.experimental=true` because the local JDK (25) is
-ahead of the Mockito-bundled ByteBuddy's official support window
-(24). Scoped to the test JVM only; documented in `pom.xml`.
+`maven-surefire-plugin` sets
+`-XX:+IgnoreUnrecognizedVMOptions -Dnet.bytebuddy.experimental=true
+-XX:+EnableDynamicAgentLoading`. Verified green on Temurin 17 (the
+brief's stated runtime); the two `-XX` flags are no-ops on JDK 17/20
+thanks to the leading `IgnoreUnrecognizedVMOptions`, and keep the
+build green for developers running JDK 21+ locally without touching
+Mockito config. Scoped to the test JVM only; rationale in
+`pom.xml`.
 
 ---
 
