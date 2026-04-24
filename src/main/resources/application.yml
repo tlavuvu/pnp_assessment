@@ -35,6 +35,22 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
     enabled: true
 
+  web:
+    # Disable static resource mappings so unknown paths surface as
+    # NoResourceFoundException for GlobalExceptionHandler rather than
+    # being served a 404 by the static-resource handler. This service
+    # is a pure API; no /static, /public, /META-INF/resources content.
+    resources:
+      add-mappings: false
+
+  jackson:
+    # Force ISO-8601 strings for java.time types so clients get a stable
+    # textual timestamp instead of a numeric epoch. Matches the shape
+    # documented in docs/API-DESIGN.md.
+    serialization:
+      write-dates-as-timestamps: false
+      write-durations-as-timestamps: false
+
 server:
   port: ${SERVER_PORT:8080}
   error:
