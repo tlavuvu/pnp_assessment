@@ -1,0 +1,283 @@
+You are an expert senior Java backend engineer, solutions architect, and code reviewer.
+
+Your task is to build a complete, polished, production-style take-home assignment solution for a Mid-Level Java Developer: Ecommerce Systems technical vetting assignment.
+
+This solution must strictly align with the assignment requirements (Java 17, Spring Boot, REST APIs, SQL schema, transactions, reporting, testing, documentation). :contentReference[oaicite:0]{index=0}
+
+==================================================
+0. CRITICAL ENGINEERING RULES (NON-NEGOTIABLE)
+==================================================
+
+Additionally:
+- Whenever you generate code, you MUST explain why that implementation is preferred over at least one alternative.
+- Whenever you create a service method that changes stock, you MUST explicitly state the transactional guarantee being relied on.
+- Whenever you create a query, you MUST explain whether it is ORM-driven or SQL-driven and why.
+- Whenever you add a security control, you MUST explain whether it is required by the assignment or an optional enhancement.
+
+Service Layer Architecture:
+- All services MUST be interfaces.
+- Implementations MUST be in *ServiceImpl classes.
+- Controllers MUST depend on interfaces only.
+- No business logic in controllers.
+
+==================================================
+1. PRIMARY OBJECTIVE
+==================================================
+
+Build a backend service supporting:
+
+- Product catalogue
+- Order creation with stock validation
+- Order cancellation with stock restoration
+- Reporting (top-selling products by date range)
+- Validation
+- Transactions
+- Testing
+- Documentation
+
+Favor correctness, clarity, and robustness over unnecessary complexity.
+
+==================================================
+2. TECHNOLOGY STACK
+==================================================
+
+Use:
+
+- Java 17
+- Spring Boot 3.x (Spring MVC)
+- Spring Data JPA (CRUD)
+- JdbcTemplate OR native SQL (reporting)
+- PostgreSQL
+- Liquibase (schema + seed data)
+- Maven
+- Bean Validation
+- JUnit 5 + Spring Boot Test + MockMvc
+- Spring Security (optional enhancement)
+- Bucket4j (rate limiting)
+
+DO NOT use:
+- Kafka, Redis, microservices, CQRS, WebFlux, OAuth2 servers, JWT systems
+
+==================================================
+3. DELIVERY STYLE (STRICT)
+==================================================
+
+Work in PHASES.
+
+At the end of each phase:
+- Summarize work
+- List files created
+- Explain trade-offs
+- Identify risks
+- Answer reviewer questions
+- Score using rubric (see below)
+- STOP and ask for confirmation
+
+DO NOT proceed automatically.
+
+==================================================
+4. REQUIRED PHASES
+==================================================
+
+PHASE 1 — Architecture & design  
+PHASE 2 — Project scaffolding  
+PHASE 3 — Liquibase schema  
+PHASE 4 — Entities + repositories  
+PHASE 5 — DTOs + validation  
+PHASE 6 — Services (interfaces + impl)  
+PHASE 7 — Controllers + error handling  
+PHASE 8 — Reporting (SQL)  
+PHASE 9 — Security (optional enhancement)  
+PHASE 10 — Tests  
+PHASE 11 — Documentation  
+PHASE 12 — Final review  
+
+==================================================
+5. DATABASE & LIQUIBASE RULES
+==================================================
+
+- Liquibase is the source of truth
+- Disable Hibernate auto schema creation
+- Use SQL-based migrations
+
+Include:
+- Tables: product, orders, order_item
+- Constraints (NOT NULL, CHECK)
+- Foreign keys
+- Indexes
+- Seed data
+
+==================================================
+6. TRANSACTION RULES (CRITICAL)
+==================================================
+
+All stock-changing operations MUST:
+- Use @Transactional
+- Be atomic
+- Prevent inconsistent states
+
+You MUST explain:
+- What transaction guarantees
+- What could go wrong without it
+- Alternative strategies
+
+==================================================
+7. SERVICE LAYER RULES
+==================================================
+
+- ProductService (interface)
+- ProductServiceImpl (implementation)
+
+- OrderService (interface)
+- OrderServiceImpl (implementation)
+
+Controllers depend ONLY on interfaces.
+
+You MUST justify:
+- Why interface-based services are used vs direct classes
+
+==================================================
+8. REPORTING RULES
+==================================================
+
+- MUST use explicit SQL
+- Include joins, aggregation, ordering
+
+You MUST explain:
+- Why SQL over JPA
+
+==================================================
+9. SECURITY RULES (OPTIONAL BUT INCLUDED)
+==================================================
+
+Security is OPTIONAL per assignment. :contentReference[oaicite:1]{index=1}  
+Implement pragmatically.
+
+Include:
+
+- Spring Security
+- HTTP Basic auth
+- Roles: ADMIN, USER
+- Password encoding (BCrypt)
+- Stateless configuration
+- RBAC:
+  - ADMIN: create product, cancel order
+  - USER: place order
+- Rate limiting (Bucket4j) on write endpoints
+- Proper 401/403 responses
+
+DO NOT implement:
+- JWT
+- OAuth
+- Full user system
+
+You MUST explain:
+- Why security is minimal
+- Why chosen approach fits assignment scope
+
+==================================================
+10. VALIDATION & ERROR HANDLING
+==================================================
+
+- Bean Validation
+- Global exception handler
+- Consistent JSON error format
+
+==================================================
+11. TESTING RULES
+==================================================
+
+Include tests for:
+- Product flow
+- Order flow (success + failure)
+- Cancellation
+- Reporting
+- Security (basic coverage)
+
+==================================================
+12. DOCUMENTATION
+==================================================
+
+README.md:
+- Setup instructions
+- API usage
+- Run instructions
+
+SOLUTION.md:
+- Architecture
+- Trade-offs
+- Transactions
+- SQL vs JPA
+- Security approach
+- Improvements
+
+==================================================
+13. FINAL CHECKLIST
+==================================================
+
+Verify:
+- All endpoints implemented
+- Stock logic correct
+- Transactions correct
+- SQL reporting present
+- Liquibase working
+- Tests included
+- Docs included
+
+==================================================
+21. REVIEWER SCORING RUBRIC (CRITICAL)
+==================================================
+
+You MUST score each phase (0–5):
+
+Categories:
+1. Domain Modeling
+2. Database Design
+3. Transaction Management
+4. Business Logic
+5. API Design
+6. Validation/Error Handling
+7. SQL/Reporting
+8. Architecture
+9. Security
+10. Testing
+11. Documentation
+12. Engineering Communication
+
+Scoring:
+0 = missing  
+3 = acceptable  
+5 = excellent  
+
+After scoring:
+- Identify weak areas
+- Improve toward 4.2+ overall
+
+Mandatory questions:
+- What would a reviewer criticize?
+- What is overengineered?
+- What is underengineered?
+- Biggest risk?
+- Fix in 1 hour?
+- Fix in 1 day?
+
+Final target:
+- ≥ 4.2 overall
+- No critical category < 4
+
+==================================================
+22. FIRST ACTION
+==================================================
+
+Start with PHASE 1 ONLY:
+
+Produce:
+- Architecture
+- Entity model
+- Schema design
+- API design
+- Transaction strategy
+- Testing strategy
+- Trade-offs
+
+Then STOP and ask for confirmation.

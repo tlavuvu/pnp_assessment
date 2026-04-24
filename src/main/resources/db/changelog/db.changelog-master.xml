@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        Master changelog. SQL changesets are listed explicitly (not via
+        <includeAll>) so ordering is unambiguous and adding a new file
+        requires an intentional edit here. relativeToChangelogFile=true
+        means each <include> path is resolved relative to this file,
+        keeping the wiring refactor-safe if the master ever moves.
+    -->
+
+    <include relativeToChangelogFile="true" file="changes/001-create-product.sql"/>
+    <include relativeToChangelogFile="true" file="changes/002-create-orders.sql"/>
+    <include relativeToChangelogFile="true" file="changes/003-create-order-item.sql"/>
+    <include relativeToChangelogFile="true" file="changes/004-indexes.sql"/>
+    <include relativeToChangelogFile="true" file="changes/005-seed-products.sql"/>
+
+</databaseChangeLog>
