@@ -6,12 +6,17 @@
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <!--
-        Master changelog. Phase 3 will append <include> entries for each
-        SQL changeset under changes/. Keeping this file as the single
-        entry point so application.yml never needs to change when we add
-        migrations.
-
-        Ordering rule: include files in filename order (001-, 002-, ...).
+        Master changelog. SQL changesets are listed explicitly (not via
+        <includeAll>) so ordering is unambiguous and adding a new file
+        requires an intentional edit here. relativeToChangelogFile=true
+        means each <include> path is resolved relative to this file,
+        keeping the wiring refactor-safe if the master ever moves.
     -->
+
+    <include relativeToChangelogFile="true" file="changes/001-create-product.sql"/>
+    <include relativeToChangelogFile="true" file="changes/002-create-orders.sql"/>
+    <include relativeToChangelogFile="true" file="changes/003-create-order-item.sql"/>
+    <include relativeToChangelogFile="true" file="changes/004-indexes.sql"/>
+    <include relativeToChangelogFile="true" file="changes/005-seed-products.sql"/>
 
 </databaseChangeLog>
