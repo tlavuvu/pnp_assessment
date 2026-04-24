@@ -22,7 +22,6 @@
 |---|---|
 | 200 | Successful read |
 | 201 | Resource created (has `Location` header) |
-| 204 | Successful action without body (e.g. cancellation) |
 | 400 | Malformed JSON / validation error |
 | 401 | Missing or bad credentials |
 | 403 | Authenticated but role not permitted |
@@ -55,10 +54,24 @@ Rules:
 - `fieldErrors` is present only on validation failures (400).
 - No stack traces, no entity fields, no SQL state codes leak out.
 
-Defined `code` values in v1:
-`VALIDATION_FAILED`, `PRODUCT_NOT_FOUND`, `ORDER_NOT_FOUND`,
-`INSUFFICIENT_STOCK`, `ILLEGAL_ORDER_STATE`, `ACCESS_DENIED`,
-`AUTHENTICATION_REQUIRED`, `RATE_LIMITED`, `INTERNAL_ERROR`.
+Defined `code` values in v1 (as emitted by `GlobalExceptionHandler`
+and the security filter chain):
+
+| Code | HTTP | Emitted by |
+|---|---|---|
+| `VALIDATION_FAILED` | 400 | Bean Validation on body / params |
+| `MALFORMED_REQUEST` | 400 | Unreadable JSON / bad path-var type |
+| `INVALID_REPORT_RANGE` | 400 | `from` / `to` cross-field rules |
+| `UNAUTHORIZED` | 401 | `AuthenticationEntryPoint` (anonymous / bad creds) |
+| `FORBIDDEN` | 403 | `AccessDeniedHandler` (wrong role) |
+| `PRODUCT_NOT_FOUND` | 404 | `ProductNotFoundException` |
+| `ORDER_NOT_FOUND` | 404 | `OrderNotFoundException` |
+| `NOT_FOUND` | 404 | Unmatched routes |
+| `METHOD_NOT_ALLOWED` | 405 | Wrong HTTP verb |
+| `INSUFFICIENT_STOCK` | 409 | `InsufficientStockException` |
+| `ORDER_NOT_CANCELLABLE` | 409 | Cancel on non-`CONFIRMED` order |
+| `RATE_LIMITED` | 429 | `RateLimitFilter` (bucket exhausted) |
+| `INTERNAL_ERROR` | 500 | Catch-all |
 
 ---
 
@@ -229,11 +242,14 @@ Errors: `404 ORDER_NOT_FOUND`
 Request body: none.
 
 Responses
-- `204 No Content`
+- `200 OK` with the updated `OrderResponse` body (status = `CANCELLED`).
+  Returning the resource — rather than a bare `204` — lets clients
+  reconcile UI state without an extra GET.
 - `404 ORDER_NOT_FOUND`
-- `409 ILLEGAL_ORDER_STATE` — cancel only allowed from `CONFIRMED`.
-  Cancelling an already-`CANCELLED` order returns 409 (not idempotent by
-  design — safer; we can loosen later if needed).
+- `409 ORDER_NOT_CANCELLABLE` — cancel is allowed only from
+  `CONFIRMED`. A second cancel on an already-`CANCELLED` order returns
+  409 (not idempotent by design — safer; we can loosen later if
+  needed, see ADR-013).
 - `429 RATE_LIMITED`
 
 ---
@@ -295,6 +311,13 @@ Implementation note: backed by a single native SQL in
 "USER own" = USER may only read orders whose `customerReference` matches
 their principal context (mapping strategy deferred — if not feasible
 cleanly, fall back to ADMIN-only read and document the trade-off).
+
+**Implementation status (Phase 9):** "USER own" is **not enforced** in
+code. The current rule is "authenticated user can read any order".
+Enforcing ownership would require either storing the principal on
+`orders.customer_reference` on placement and a method-level
+`@PreAuthorize` check, or an owner column. Deferred to follow-up;
+flagged as underengineered in `docs/SOLUTION.md`.
 
 ---
 
