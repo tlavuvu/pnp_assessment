@@ -159,14 +159,14 @@ Full contract with error envelope in
 ## Status
 
 - [x] Phase 1 — Architecture & design (docs)
-- [x] Phase 2 — Project scaffolding (this commit)
-- [ ] Phase 3 — Liquibase schema
-- [ ] Phase 4 — Entities + repositories
-- [ ] Phase 5 — DTOs + validation
-- [ ] Phase 6 — Services (interfaces + impl)
-- [ ] Phase 7 — Controllers + error handling
-- [ ] Phase 8 — Reporting (SQL)
-- [ ] Phase 9 — Security (optional enhancement)
+- [x] Phase 2 — Project scaffolding
+- [x] Phase 3 — Liquibase schema
+- [x] Phase 4 — Entities + repositories
+- [x] Phase 5 — DTOs + validation
+- [x] Phase 6 — Services (interfaces + impl)
+- [x] Phase 7 — Controllers + error handling
+- [x] Phase 8 — Reporting (SQL)
+- [x] Phase 9 — Security (optional enhancement)
 - [ ] Phase 10 — Tests
 - [ ] Phase 11 — Documentation
 - [ ] Phase 12 — Final review

@@ -166,3 +166,72 @@
   retry.
 - **Why**: Retry loops are easy to get wrong and noisy in logs. A
   deterministic lock order is free correctness.
+
+## ADR-016 — HTTP Basic + in-memory users (no JWT, no DB user schema)
+
+- **Date**: Phase 9
+- **Status**: Accepted (optional enhancement per brief)
+- **Decision**: Spring Security with HTTP Basic, stateless sessions,
+  users seeded from `@ConfigurationProperties` into
+  `InMemoryUserDetailsManager`.
+- **Alternatives**:
+  1. **JWT / OAuth2** — explicitly forbidden by the brief.
+  2. **DB-backed `UserDetailsService` + user-account schema** —
+     doubles Phase 3 + Phase 4 scope for zero extra reviewer signal
+     on the actual assignment (catalogue, orders, reporting).
+- **Why**: Basic-Auth is the smallest authenticator that actually
+  enforces the RBAC matrix in `API-DESIGN.md` §4. Stateless +
+  CSRF-disabled matches a JSON API's threat model (no cookie forgery
+  surface). The trade-off is documented rather than silently skipped.
+
+## ADR-017 — Plaintext seed passwords in dev/test, BCrypt-encoded at startup
+
+- **Date**: Phase 9
+- **Status**: Accepted
+- **Decision**: `application-{dev,test}.yml` hold plaintext passwords;
+  `SecurityConfig` encodes them with BCrypt on boot before building
+  `UserDetails`. Base `application.yml` has **no** `security.users`
+  block, so booting without a dev/test/prod profile fails fast
+  (missing required binding).
+- **Alternatives**:
+  1. **Hashes in config** — inconvenient to rotate locally; still
+     unsafe to commit.
+  2. **Random password logged at startup** (Spring default) — breaks
+     reproducible integration tests.
+- **Why**: Fail-fast in non-dev profiles + zero-friction local auth.
+  A prod profile would override with a BCrypt-prefixed-encoder + env
+  vars, or swap `UserDetailsService` for a DB-backed implementation.
+
+## ADR-018 — In-process Bucket4j buckets per principal (no Redis / Hazelcast)
+
+- **Date**: Phase 9
+- **Status**: Accepted with documented risk
+- **Decision**: `RateLimitFilter` keeps a `ConcurrentHashMap<String,
+  Bucket>` keyed by `principal + category` (WRITE or REPORT).
+- **Alternatives**:
+  1. **Redis / Hazelcast-backed buckets** — explicitly forbidden (no
+     Redis in stack).
+  2. **Gateway-level rate limiting** — out of scope; there is no
+     gateway in the brief.
+- **Why**: The brief assumes a single-instance deploy. An N-instance
+  deploy would multiply the effective quota by N — a known limitation
+  and the first thing a production-grade follow-up would address.
+  Bucket4j was also chosen over a hand-rolled sliding-window counter
+  because "greedy" refill + thread-safety are correctness-sensitive,
+  and Bucket4j already implements both.
+
+## ADR-019 — RateLimitFilter runs after `AuthorizationFilter`
+
+- **Date**: Phase 9
+- **Status**: Accepted
+- **Decision**: `addFilterAfter(rateLimitFilter, AuthorizationFilter.class)`.
+- **Alternative**: Rate-limit before authentication (`addFilterBefore(…,
+  BasicAuthenticationFilter.class)`).
+- **Why**: The bucket is keyed on the authenticated principal. Running
+  after authorization means:
+  - unauthenticated traffic is 401'd without spending tokens,
+  - authenticated-but-forbidden traffic is 403'd without spending
+    tokens,
+  - only traffic that would actually be processed consumes quota.
+  The downside is that an unauthenticated flood can still hit the
+  auth code path; mitigated at the infra layer in production.
