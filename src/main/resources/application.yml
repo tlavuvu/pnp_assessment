@@ -12,8 +12,8 @@ spring:
 
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/pnp_ecommerce}
-    username: ${DB_USER:pnp}
-    password: ${DB_PASSWORD:pnp}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2

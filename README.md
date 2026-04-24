@@ -80,6 +80,16 @@ user/password `pnp`/`pnp`. Override via env vars when needed:
 | `SERVER_PORT` | `8080` |
 | `SPRING_PROFILES_ACTIVE` | `dev` |
 
+Create a local env file before booting the app:
+
+```bash
+cp .env.example .env
+```
+
+Spring Boot does **not** auto-load `.env`. This repo includes
+[`scripts/with-env.sh`](./scripts/with-env.sh) to export `.env` into the
+process before running local commands.
+
 ---
 
 ## Build & run
@@ -88,12 +98,24 @@ user/password `pnp`/`pnp`. Override via env vars when needed:
 # Build (runs unit tests)
 mvn clean verify
 
-# Boot locally against your Postgres (dev profile)
-mvn spring-boot:run
+# Boot locally with variables loaded from .env
+scripts/with-env.sh mvn spring-boot:run
+
+# Run tests with variables loaded from .env
+scripts/with-env.sh mvn test
 
 # Package a runnable jar
 mvn clean package
 java -jar target/ecommerce.jar
+```
+
+If you prefer not to use the wrapper script, export `.env` in your shell first:
+
+```bash
+set -a
+source .env
+set +a
+mvn spring-boot:run
 ```
 
 Health check: `GET http://localhost:8080/actuator/health` → `{"status":"UP"}`.
@@ -171,7 +193,7 @@ Seeded credentials (dev / test profiles only — see
 
 ## End-to-end walkthrough (curl)
 
-Boot the app (`mvn spring-boot:run`), then from another shell:
+Boot the app (`scripts/with-env.sh mvn spring-boot:run`), then from another shell:
 
 ```bash
 # 0. health (public)

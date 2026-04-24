@@ -29,7 +29,7 @@ Runtime verified on **Temurin 17.0.16** (brief's stated JDK).
 | Spring Boot 3.x (MVC) | `pom.xml` `spring-boot-starter-parent 3.4.13`, `spring-boot-starter-web` |
 | Spring Data JPA | `ProductRepository`, `OrderRepository` |
 | `NamedParameterJdbcTemplate` for reporting | `repository/ReportJdbcRepository` |
-| PostgreSQL | `application.yml` / `application-dev.yml` datasource |
+| PostgreSQL | `application.yml` (datasource; dev profile only adds logging + `security.users`) |
 | Liquibase | `src/main/resources/db/changelog/*` |
 | Maven | `pom.xml` |
 | Bean Validation | `dto/*` annotations + `validator/UniqueProductIds*` |
