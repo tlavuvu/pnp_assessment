@@ -26,7 +26,8 @@ public sealed abstract class DomainException extends RuntimeException
         permits ProductNotFoundException,
                 OrderNotFoundException,
                 InsufficientStockException,
-                IllegalOrderStateException {
+                IllegalOrderStateException,
+                InvalidReportRangeException {
 
     private final String code;
 

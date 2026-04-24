@@ -57,29 +57,28 @@ public class GlobalExceptionHandler {
     }
 
     // ---- Domain exceptions (sealed hierarchy) -------------------------------
+    //
+    // Grouped by HTTP status so adding a new domain exception only requires
+    // appending it to the matching @ExceptionHandler value list. The sealed
+    // hierarchy still guarantees the full set is reviewable in one place
+    // ({@link DomainException}).
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleProductNotFound(final ProductNotFoundException ex,
-                                                               final HttpServletRequest req) {
+    @ExceptionHandler({ProductNotFoundException.class, OrderNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleDomainNotFound(final DomainException ex,
+                                                              final HttpServletRequest req) {
         return build(HttpStatus.NOT_FOUND, ex.getCode(), ex.getMessage(), req, List.of());
     }
 
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleOrderNotFound(final OrderNotFoundException ex,
-                                                             final HttpServletRequest req) {
-        return build(HttpStatus.NOT_FOUND, ex.getCode(), ex.getMessage(), req, List.of());
-    }
-
-    @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<ErrorResponse> handleInsufficientStock(final InsufficientStockException ex,
-                                                                 final HttpServletRequest req) {
+    @ExceptionHandler({InsufficientStockException.class, IllegalOrderStateException.class})
+    public ResponseEntity<ErrorResponse> handleDomainConflict(final DomainException ex,
+                                                              final HttpServletRequest req) {
         return build(HttpStatus.CONFLICT, ex.getCode(), ex.getMessage(), req, List.of());
     }
 
-    @ExceptionHandler(IllegalOrderStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalOrderState(final IllegalOrderStateException ex,
-                                                                 final HttpServletRequest req) {
-        return build(HttpStatus.CONFLICT, ex.getCode(), ex.getMessage(), req, List.of());
+    @ExceptionHandler(InvalidReportRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidReportRange(final InvalidReportRangeException ex,
+                                                                  final HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, ex.getCode(), ex.getMessage(), req, List.of());
     }
 
     // ---- Validation errors --------------------------------------------------
