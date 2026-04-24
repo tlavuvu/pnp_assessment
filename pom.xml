@@ -173,6 +173,25 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+            <!--
+              Surefire argLine:
+              - net.bytebuddy.experimental=true lets Mockito (via ByteBuddy)
+                mock concrete classes on JDKs that are newer than the one
+                ByteBuddy officially supports. Required here because the
+                local JDK (25) is ahead of Byte Buddy's official support
+                window (24). Safe trade-off because the flag is scoped to
+                the test JVM only.
+              - -XX:+EnableDynamicAgentLoading silences the future-removal
+                warning for Mockito's self-attaching inline mock maker.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dnet.bytebuddy.experimental=true -XX:+EnableDynamicAgentLoading</argLine>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

@@ -167,6 +167,6 @@ Full contract with error envelope in
 - [x] Phase 7 — Controllers + error handling
 - [x] Phase 8 — Reporting (SQL)
 - [x] Phase 9 — Security (optional enhancement)
-- [ ] Phase 10 — Tests
+- [x] Phase 10 — Tests
 - [ ] Phase 11 — Documentation
 - [ ] Phase 12 — Final review
