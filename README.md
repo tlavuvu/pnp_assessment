@@ -4,6 +4,8 @@ Backend service for the Mid-Level Java Developer: Ecommerce Systems
 take-home. Spring Boot 3 / Java 17 / PostgreSQL / Liquibase.
 
 > This README is the **quick-start**. Design lives in [`docs/`](./docs):
+> [SOLUTION](./docs/SOLUTION.md) (start here),
+> [REVIEWER-CHECKLIST](./docs/REVIEWER-CHECKLIST.md) (rule → code map),
 > [ARCHITECTURE](./docs/ARCHITECTURE.md),
 > [API-DESIGN](./docs/API-DESIGN.md),
 > [DB-DESIGN](./docs/DB-DESIGN.md),
@@ -21,9 +23,6 @@ take-home. Spring Boot 3 / Java 17 / PostgreSQL / Liquibase.
 - Bean Validation + global error envelope
 - HTTP Basic auth + RBAC (ADMIN / USER)
 - Rate limiting on write endpoints (Bucket4j, in-memory)
-
-> Phases 3–12 fill in the implementation. The scaffold in this commit is
-> Phase 2: dependencies wired, app boots, package structure in place.
 
 ---
 
@@ -104,13 +103,19 @@ Health check: `GET http://localhost:8080/actuator/health` → `{"status":"UP"}`.
 ## Tests
 
 ```bash
-# Unit tests + Spring slices — fast, no Docker needed
+# Run the full test suite (unit + Testcontainers integration tests).
+# Docker must be running — Testcontainers starts a Postgres 16 container.
 mvn test
 
-# Full verify — includes integration tests against Testcontainers Postgres.
-# Requires Docker to be running.
+# Same suite, plus full verify lifecycle (package etc.).
 mvn verify
 ```
+
+Current suite: **44 tests, 0 failures**. The concurrency proof
+(`OrderConcurrencyIntegrationTest`) is the highest-signal spec — it
+fires 50 threads at a product with stock = 20 and asserts no oversell
+plus deterministic outcomes. See
+[`docs/TEST-STRATEGY.md`](./docs/TEST-STRATEGY.md).
 
 ---
 
@@ -119,7 +124,7 @@ mvn verify
 ```
 src/main/java/com/pnp/ecommerce/
 ├── EcommerceApplication.java
-├── config/        # SecurityConfig, RateLimitConfig, OpenApiConfig
+├── config/        # SecurityConfig, RateLimitFilter, Clock bean
 ├── controller/    # REST endpoints (no business logic)
 ├── dto/           # Request/Response records
 ├── entity/        # JPA entities
@@ -134,7 +139,7 @@ src/main/java/com/pnp/ecommerce/
 src/main/resources/
 ├── application.yml
 ├── application-dev.yml
-└── db/changelog/  # Liquibase (Phase 3)
+└── db/changelog/  # Liquibase SQL changelogs + seed data
 ```
 
 ---
@@ -154,6 +159,82 @@ src/main/resources/
 Full contract with error envelope in
 [`docs/API-DESIGN.md`](./docs/API-DESIGN.md).
 
+Seeded credentials (dev / test profiles only — see
+[`application-dev.yml`](./src/main/resources/application-dev.yml)):
+
+| User | Password | Roles |
+|---|---|---|
+| `admin` | `admin123` | `ADMIN` |
+| `user`  | `user123`  | `USER` |
+
+---
+
+## End-to-end walkthrough (curl)
+
+Boot the app (`mvn spring-boot:run`), then from another shell:
+
+```bash
+# 0. health (public)
+curl -s http://localhost:8080/actuator/health
+
+# 1. list catalogue (any authenticated user)
+curl -s -u user:user123 \
+  http://localhost:8080/api/v1/products | jq .
+
+# 2. admin creates a new product
+curl -s -u admin:admin123 \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "name": "Lavazza Oro 1kg",
+        "description": "Medium roast, 100% arabica",
+        "price": 249.99,
+        "stock": 40
+      }' \
+  http://localhost:8080/api/v1/products -i
+
+# 3. place an order (any authenticated user)
+curl -s -u user:user123 \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "customerReference": "cust-0001",
+        "items": [
+          { "productId": 1, "quantity": 2 },
+          { "productId": 2, "quantity": 1 }
+        ]
+      }' \
+  http://localhost:8080/api/v1/orders -i
+
+# 4. read the order back — snapshot pricing persisted on items.
+#    Replace {id} with the numeric id returned in step 3's Location header.
+curl -s -u user:user123 \
+  http://localhost:8080/api/v1/orders/1 | jq .
+
+# 5. try to oversell — expect 409 INSUFFICIENT_STOCK
+curl -s -u user:user123 \
+  -H 'Content-Type: application/json' \
+  -d '{
+        "customerReference": "cust-0001",
+        "items": [ { "productId": 1, "quantity": 999999 } ]
+      }' \
+  http://localhost:8080/api/v1/orders -i
+
+# 6. admin cancels the order — stock is restored in the same tx
+curl -s -u admin:admin123 -X POST \
+  http://localhost:8080/api/v1/orders/1/cancel -i
+
+# 7. top-products report for Q1 (ADMIN only)
+curl -s -u admin:admin123 \
+  "http://localhost:8080/api/v1/reports/top-products?\
+from=2026-01-01T00:00:00Z&to=2026-04-01T00:00:00Z&limit=5" | jq .
+
+# 8. role enforcement: USER hitting an ADMIN endpoint returns 403
+curl -s -u user:user123 -X POST \
+  http://localhost:8080/api/v1/orders/1/cancel -i
+```
+
+Every response (success and error) carries the envelope shape
+described in [`docs/API-DESIGN.md`](./docs/API-DESIGN.md) §2.
+
 ---
 
 ## Status
@@ -168,5 +249,5 @@ Full contract with error envelope in
 - [x] Phase 8 — Reporting (SQL)
 - [x] Phase 9 — Security (optional enhancement)
 - [x] Phase 10 — Tests
-- [ ] Phase 11 — Documentation
-- [ ] Phase 12 — Final review
+- [x] Phase 11 — Documentation
+- [x] Phase 12 — Final review
